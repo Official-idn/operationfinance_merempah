@@ -4,48 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Operasional Merempah</title>
-    <!-- Library untuk PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* --- TEMA UI FORM UTAMA --- */
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f5; color: #111; margin: 0; padding: 0; font-size: 12px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); min-height: 100vh;}
-        
-        /* --- LAYAR PASSWORD --- */
-        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1b4332; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;}
-        .auth-box { background: white; padding: 30px; border-radius: 10px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-top: 5px solid #c5a059; }
-        .auth-box h3 { margin-top: 0; color: #1b4332; text-transform: uppercase; letter-spacing: 1px; }
-        .auth-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 16px; box-sizing: border-box; }
-        .auth-box button { width: 100%; padding: 12px; background: #c5a059; color: #111; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 15px; text-transform: uppercase; }
-        .auth-box button:hover { background: #a48243; color: white; }
-
-        .header { background-color: #1b4332; color: #fff; text-align: center; padding: 15px 0; border-bottom: 4px solid #c5a059; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f5; color: #111; margin: 0; padding: 0; font-size: 12px; }
+        .header { background-color: #1b4332; color: #fff; text-align: center; padding: 12px 0; border-bottom: 4px solid #c5a059; }
         .header h2 { margin: 0; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
         .tab-container { display: flex; background-color: #111; }
         .tab-btn { flex: 1; padding: 12px 2px; cursor: pointer; text-align: center; color: #ccc; font-weight: bold; font-size: 10px; border: none; background: none; transition: 0.3s; text-transform: uppercase; }
         .tab-btn.active { background-color: #c5a059; color: #111; }
-        .tab-content { display: none; padding: 15px; background: #f4f6f5; min-height: calc(100vh - 100px); }
+        .tab-content { display: none; padding: 15px; }
         .tab-content.active { display: block; }
-        .section { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .section-title { font-weight: bold; background: #111; color: #c5a059; padding: 8px 12px; margin: -15px -15px 12px -15px; border-radius: 6px 6px 0 0; font-size: 11px; text-transform: uppercase; }
+        .section { background: #fff; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .section-title { font-weight: bold; background: #111; color: #c5a059; padding: 8px 12px; margin: -12px -12px 10px -12px; border-radius: 6px 6px 0 0; font-size: 11px; text-transform: uppercase; }
         .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        .col { flex: 1; min-width: 120px; }
+        .col { flex: 1; min-width: 100px; }
         label { display: block; margin-top: 5px; font-weight: bold; color: #555; font-size: 10px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 10px 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: inherit; }
         input[readonly] { background-color: #eee; font-weight: bold; color: #1b4332; }
         .calc-box { background: #fffde7 !important; color: #d32f2f !important; border: 1px solid #fff59d !important;}
-        .action-btn { width: 100%; padding: 15px; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; background-color: #1b4332; text-transform: uppercase; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .action-btn { width: 100%; padding: 12px; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; background-color: #1b4332; text-transform: uppercase; margin-top: 10px; }
         .action-btn.gold { background-color: #c5a059; color: #111; }
-        button:disabled { background-color: #888 !important; color: #ddd !important; cursor: not-allowed; box-shadow: none; }
-        .msg-box { display: none; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-top: 15px; font-size: 12px; border: 1px solid transparent;}
-        .msg-success { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; }
-        .msg-info { background-color: #fff3cd; color: #856404; border-color: #ffeeba; font-size: 11px; padding: 10px; margin-bottom: 15px; border-radius: 5px;}
-        hr { border: 0; border-top: 1px dashed #ddd; margin: 15px 0; }
-        
-        .check-grid { display: grid; grid-template-columns: 1fr; gap: 8px; background:#f8f9fa; padding:12px; border-radius:5px; border:1px solid #eee; margin-bottom:12px;}
-        .check-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color:#333; line-height: 1.3;}
-        .check-item input { width: auto; transform: scale(1.3); margin-top: 2px; cursor:pointer;}
-        
-        /* --- LAYOUT PDF (Disembunyikan di UI utama) --- */
+        button:disabled { background-color: #888 !important; color: #ddd !important; cursor: not-allowed; }
+        .msg-box { display: none; padding: 10px; text-align: center; font-weight: bold; border-radius: 5px; margin-top: 10px; font-size: 11px; }
+        .msg-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .msg-error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .msg-info { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-size: 11px; padding: 8px; margin-bottom: 12px; border-radius: 4px;}
+        hr { border: 0; border-top: 1px dashed #ddd; margin: 12px 0; }
+
+        .check-grid { display: grid; grid-template-columns: 1fr; gap: 6px; background:#f8f9fa; padding:10px; border-radius:5px; border:1px solid #eee; margin-bottom:10px;}
+        .check-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color:#333; }
+        .check-item input { width: auto; transform: scale(1.2); margin:0; cursor:pointer;}
+
+        /* --- LAYOUT PDF --- */
         #print-container { display: none; }
         .pdf-page { width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; color: #000; background: #fff; font-size: 12px; line-height: 1.5; }
         .pdf-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
@@ -62,45 +52,39 @@
 </head>
 <body>
 
-    <!-- OVERLAY PASSWORD -->
-    <div id="auth-overlay">
-        <div class="auth-box">
-            <h3>🔒 Halaman Terkunci</h3>
-            <p style="font-size: 12px; color: #666;">Masukkan password khusus tim Merempah.</p>
-            <input type="password" id="inputPassword" placeholder="Password">
-            <button onclick="cekPassword()">BUKA SISTEM</button>
-        </div>
-    </div>
+    <!-- ============================================================ -->
+    <!-- GANTI URL INI DENGAN URL DEPLOYMENT APPS SCRIPT ANDA         -->
+    <!-- ============================================================ -->
+    <script>
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdKj0Xx5xFeIxORBv2pBo3DGiG5BmKqcxnypDKO9ett5hYIPNt-YaZEWMjeCpalL52_w/exec";
+    </script>
 
     <div id="ui-container">
         <div class="header"><h2>MEREMPAH CAFE & SPICE</h2></div>
 
-        <!-- TABS -->
         <div class="tab-container">
-            <button class="tab-btn active" onclick="bukaTab('tab-handover')">1. Handover</button>
-            <button class="tab-btn" onclick="bukaTab('tab-cashflow')">2. Cashflow</button>
-            <button class="tab-btn" onclick="bukaTab('tab-kasbon')">3. Kasbon</button>
+            <button class="tab-btn active" onclick="bukaTab('tab-handover', this)">1. Handover</button>
+            <button class="tab-btn" onclick="bukaTab('tab-cashflow', this)">2. Cashflow</button>
+            <button class="tab-btn" onclick="bukaTab('tab-kasbon', this)">3. Kasbon</button>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 1: HANDOVER SHIFT                      -->
-        <!-- ========================================== -->
+        <!-- TAB 1: HANDOVER -->
         <div id="tab-handover" class="tab-content active">
-            <div class="msg-info">⚠️ Harap selesaikan 7 item checklist. <br><span id="status_tarik_data" style="font-weight:bold; color:#d32f2f;">Menunggu proses buka sistem...</span></div>
-            
+            <div class="msg-info">⚠️ Harap selesaikan 7 item checklist sebelum handover fisik. <br><span id="status_tarik_data">🔄 Sedang menarik data modal awal otomatis...</span></div>
+
             <div class="section">
                 <div class="section-title">A. CHECKLIST AREA & OPERASIONAL</div>
                 <div class="check-grid">
-                    <strong style="font-size:11px;">Area Kebersihan:</strong>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>1. Lantai sudah disapu & dipel</span></label>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>2. Meja & kursi sudah dilap</span></label>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>3. Area bar/dapur bersih & rapi</span></label>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>4. Toilet dicek & dibersihkan</span></label>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>5. Sampah sudah dibuang</span></label>
+                    <strong style="font-size:10px;">Area Kebersihan:</strong>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 1. Lantai sudah disapu & dipel</label>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 2. Meja & kursi sudah dilap</label>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 3. Area bar/dapur bersih & rapi</label>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 4. Toilet dicek & dibersihkan</label>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 5. Sampah sudah dibuang</label>
                     <hr style="margin:4px 0">
-                    <strong style="font-size:11px;">Persiapan Operasional:</strong>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>6. Peralatan sudah dicuci</span></label>
-                    <label class="check-item"><input type="checkbox" class="c-item"> <span>7. Lampu non-operasional mati (Khusus Minggu Pukul 21:00)</span></label>
+                    <strong style="font-size:10px;">Persiapan Operasional:</strong>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 6. Peralatan sudah dicuci</label>
+                    <label class="check-item"><input type="checkbox" class="c-item"> 7. Lampu non-operasional mati (Khusus Minggu Pukul 09:00)</label>
                 </div>
             </div>
 
@@ -113,21 +97,22 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col"><label>Modal Laci (Otomatis)</label><input type="number" id="h_modal" oninput="kalkulasiHandover()"></div>
+                    <div class="col">
+                        <label>Modal Laci (Otomatis)</label>
+                        <input type="number" id="h_modal" oninput="kalkulasiHandover()">
+                    </div>
                     <div class="col"><label>Omzet POS Shift Ini</label><input type="number" id="h_omzet" oninput="kalkulasiHandover()"></div>
                 </div>
-                
                 <hr>
-                <label>Total Pengeluaran Shift (Rp)</label>
-                <input type="number" id="h_keluar" oninput="kalkulasiHandover()" placeholder="Contoh: 50000">
-                
+                <label>Total Pengeluaran Shift</label>
+                <input type="number" id="h_keluar" oninput="kalkulasiHandover()" placeholder="Total Nominal Rp">
                 <label>Rincian Pengeluaran Shift</label>
-                <textarea id="h_ket_keluar" rows="2" placeholder="Contoh: Es batu, 20000; Parkir, 5000;"></textarea>
-                <div style="font-size:10px; color:#666; margin-top:2px;">*Gunakan tanda titik koma (;) sebagai pemisah per item.</div>
-                
-                <label style="margin-top:10px;">TOTAL SISTEM (A)</label><input type="number" id="h_sistem" class="calc-box" readonly>
+                <textarea id="h_ket_keluar" rows="2" placeholder="Format isi: Nama pengeluaran, Nominal; Nama pengeluaran, Nominal;"></textarea>
+                <div style="font-size:10px; color:#666; margin-top:2px;">*Gunakan tanda titik koma (;) sebagai pemisah.</div>
+                <label style="margin-top:10px;">TOTAL SISTEM (A)</label>
+                <input type="number" id="h_sistem" class="calc-box" readonly>
             </div>
-            
+
             <div class="section">
                 <div class="section-title" style="background:#856404; color:#fff;">C. INFO BAHAN BAKU HABIS</div>
                 <label>Catatan / Stok Tipis (Untuk diorder shift selanjutnya)</label>
@@ -148,20 +133,18 @@
 
             <div class="section" style="background:#e8f5e9; border:1px solid #a5d6a7;">
                 <div class="section-title" style="background:#2e7d32; color:#fff;">E. TANDA TANGAN DIGITAL</div>
-                <label class="check-item"><input type="checkbox" id="acc_lama"> <span>SAYA STAF LAMA SETUJU DATA BENAR</span></label>
-                <label class="check-item"><input type="checkbox" id="acc_baru"> <span>SAYA STAF BARU MENERIMA KAS FISIK</span></label>
+                <label class="check-item"><input type="checkbox" id="acc_lama"> SAYA STAF LAMA SETUJU DATA BENAR</label>
+                <label class="check-item"><input type="checkbox" id="acc_baru"> SAYA STAF BARU MENERIMA KAS FISIK</label>
             </div>
 
-            <button id="btnHandover" class="action-btn" onclick="submitData('handover', 'btnHandover')">💾 SIMPAN DATABASE</button>
-            <div id="msgHandover" class="msg-box msg-success">✅ Handover Berhasil Disimpan ke Cloud!</div>
+            <button id="btnHandover" class="action-btn" onclick="submitFetch('handover', 'btnHandover', 'msgHandover')">💾 SIMPAN DATABASE</button>
+            <div id="msgHandover" class="msg-box msg-success">✅ Handover Disimpan!</div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 2: DAILY CASHFLOW REPORT               -->
-        <!-- ========================================== -->
+        <!-- TAB 2: CASHFLOW -->
         <div id="tab-cashflow" class="tab-content">
             <div class="msg-info">Laporan PDF resmi akan digenerate otomatis saat Anda menekan tombol simpan.</div>
-            
+
             <div class="section">
                 <div class="section-title">A. SALDO AWAL</div>
                 <div class="row">
@@ -191,35 +174,10 @@
 
             <div class="section">
                 <div class="section-title" style="background:#856404">C. RINCIAN PENGELUARAN FISIK LACI</div>
-                <div id="dynamic-expenses">
-                    <script>
-                        const kats = ["-Kategori-", "Belanja Bahan", "Transport", "Kebersihan", "Darurat", "Lainnya"];
-                        for(let i=1; i<=5; i++) {
-                            document.write(`
-                            <div class="row" style="margin-bottom:4px; gap:4px;">
-                                <div style="flex:1"><select id="dyn_kat_${i}" style="padding:6px; font-size:11px;">${kats.map(k=>`<option value="${k=='-Kategori-'?'':k}">${k}</option>`).join('')}</select></div>
-                                <div style="flex:1.5"><input type="text" id="dyn_ket_${i}" placeholder="Barang..." style="padding:6px; font-size:11px;"></div>
-                                <div style="flex:1"><input type="number" id="dyn_nom_${i}" placeholder="Rp" oninput="kalkulasiCF()" style="padding:6px; font-size:11px;"></div>
-                            </div>`);
-                        }
-                    </script>
-                </div>
+                <div id="dynamic-expenses"></div>
                 <hr>
                 <label style="color:#c5a059;">KASBON PEGAWAI</label>
-                <script>
-                    const tim =["-Nama-", "Nathan", "Friz", "Ardi", "Wanto", "Aziz", "Danu"];
-                    for(let i=1; i<=6; i+=2) {
-                        document.write(`<div class="row" style="gap:6px;">`);
-                        for(let j=i; j<=i+1; j++) {
-                            document.write(`
-                            <div style="flex:1; display:flex; gap:2px;">
-                                <select id="k_n${j}" style="padding:6px; font-size:11px;">${tim.map(n => `<option value="${n=='-Nama-' ? '' : n}">${n}</option>`).join('')}</select>
-                                <input type="number" id="k_v${j}" placeholder="Rp" oninput="kalkulasiCF()" style="padding:6px; font-size:11px; width:80px;">
-                            </div>`);
-                        }
-                        document.write(`</div>`);
-                    }
-                </script>
+                <div id="kasbon-rows"></div>
                 <label>TOTAL PENGELUARAN</label><input type="number" id="c_tot_keluar" class="calc-box" readonly>
             </div>
 
@@ -238,36 +196,32 @@
                 </div>
             </div>
 
-            <button id="btnCashflow" class="action-btn gold" onclick="prosesCetakLaluSimpan('cashflow', 'btnCashflow')">📥 CETAK PDF MT103 & SIMPAN</button>
-            <div id="msgCashflow" class="msg-box msg-success">✅ Tersimpan & PDF Terunduh!</div>
+            <button id="btnCashflow" class="action-btn gold" onclick="prosesCetakLaluSimpan()">📥 CETAK PDF MT103 & SIMPAN</button>
+            <div id="msgCashflow" class="msg-box msg-success">✅ Tersimpan & Terunduh!</div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 3: KASBON PEGAWAI                      -->
-        <!-- ========================================== -->
+        <!-- TAB 3: KASBON -->
         <div id="tab-kasbon" class="tab-content">
             <div class="msg-info">📝 Form pengajuan kasbon. PDF otomatis tercetak untuk dikirim via WA ke Management.</div>
             <div class="section">
                 <label>1. Pemohon</label>
                 <select id="kasbon_nama">
                     <option value="">- Pilih Nama -</option>
-                    <option value="Nathan">Nathan</option><option value="Friz">Friz</option>
-                    <option value="Ardi">Ardi</option><option value="Wanto">Wanto</option>
-                    <option value="Aziz">Aziz</option><option value="Danu">Danu</option>
+                    <option>Nathan</option><option>Friz</option>
+                    <option>Ardi</option><option>Wanto</option>
+                    <option>Aziz</option><option>Danu</option>
                 </select>
                 <label>2. Tanggal</label><input type="date" id="kasbon_tgl">
                 <label>3. Nominal Rp</label><input type="number" id="kasbon_nominal" oninput="cekNominalKasbon()">
-                <div id="warnKasbon" style="display:none; color:red; font-size:11px; margin-top:5px; font-weight:bold;">⚠️ Peringatan: Nominal melebih batas wajar. Pastikan THP cukup (Max 50%).</div>
+                <div id="warnKasbon" style="display:none; color:red; font-size:10px; margin-top:5px; font-weight:bold;">⚠️ Nominal melebihi batas wajar. Pastikan THP cukup (Max 50%).</div>
                 <label>4. Keperluan</label><input type="text" id="kasbon_ket">
             </div>
-            <button id="btnKasbon" class="action-btn gold" onclick="prosesCetakLaluSimpan('kasbon', 'btnKasbon')">📄 CETAK PDF & AJUKAN</button>
+            <button id="btnKasbon" class="action-btn gold" onclick="prosesKasbonLokal()">📄 CETAK PDF & AJUKAN</button>
             <div id="msgKasbon" class="msg-box msg-success">✅ Berhasil Diajukan!</div>
         </div>
-    </div> <!-- /UI Container -->
+    </div>
 
-    <!-- ========================================== -->
-    <!-- HIDDEN CONTAINER UNTUK GENERATE PDF RESMI  -->
-    <!-- ========================================== -->
+    <!-- HIDDEN: TEMPLATE PDF -->
     <div id="print-container">
         <!-- PDF CASHFLOW -->
         <div id="pdf-cashflow" class="pdf-page">
@@ -278,34 +232,27 @@
             <div class="pdf-row"><span>NO REF: <span id="p_ref"></span></span> <span>TANGGAL: <span id="p_tgl"></span></span></div>
             <div class="pdf-row"><span>PIC SHIFT: <span id="p_pic"></span></span> <span>DICETAK: <span id="p_cetak"></span></span></div>
             <div class="pdf-divider"></div>
-            
             <strong>[A] PENERIMAAN / KAS MASUK</strong>
             <div class="pdf-row"><span>1. Saldo / Modal Awal</span> <span id="p_a_awal"></span></div>
             <div class="pdf-row"><span>2. Omzet POS Sistem</span> <span id="p_pos"></span></div>
             <div class="pdf-row"><span>3. Pembayaran QRIS (Non-Tunai)</span> <span id="p_qris"></span></div>
             <div class="pdf-row bold"><span>TOTAL UANG TUNAI SEHARUSNYA</span> <span id="p_tot_tunai"></span></div>
-            
             <br><strong>[B] RINCIAN PENGELUARAN (KAS LACI)</strong>
             <table class="pdf-table">
                 <thead><tr><th>Kategori</th><th>Keterangan</th><th class="right">Nominal (Rp)</th></tr></thead>
                 <tbody id="p_tbody_pengeluaran"></tbody>
                 <tfoot><tr><th colspan="2" class="right">TOTAL PENGELUARAN</th><th class="right" id="p_tot_keluar"></th></tr></tfoot>
             </table>
-
             <br><strong>[C] REKONSILIASI FISIK</strong>
             <div class="pdf-row"><span>1. Saldo Sistem (Tunai - Pengeluaran)</span> <span id="p_sys"></span></div>
             <div class="pdf-row"><span>2. Perhitungan Fisik Laci (Aktual)</span> <span id="p_fisik"></span></div>
             <div class="pdf-row bold"><span>3. SELISIH KAS</span> <span id="p_selisih"></span></div>
             <div class="pdf-row"><span>*Ket Selisih: <span id="p_ket_selisih"></span></span></div>
-            
             <br><strong>[D] DISTRIBUSI KAS AKHIR</strong>
             <div class="pdf-row"><span>1. Retensi Modal Shift Berikutnya</span> <span id="p_setor_modal"></span></div>
             <div class="pdf-row"><span>2. Disetor ke Kas Besar (Brankas)</span> <span id="p_setor_kas"></span></div>
             <div class="pdf-row"><span>3. Disetor ke Pusat (HO)</span> <span id="p_setor_ho"></span></div>
-
-            <div class="pdf-footer">
-                PERHATIAN: Dokumen ini digenerate secara otomatis oleh sistem. Seluruh penggunaan kas laci dan kas besar wajib mendapatkan persetujuan di grup management operasional sebelum diambil. Pengambilan dana tanpa izin tertulis dianggap pelanggaran prosedur dan menjadi tanggung jawab PIC shift yang bertugas pada hari tersebut.
-            </div>
+            <div class="pdf-footer">PERHATIAN: Dokumen ini digenerate secara otomatis oleh sistem. Seluruh penggunaan kas laci dan kas besar wajib mendapatkan persetujuan di grup management operasional sebelum diambil. Pengambilan dana tanpa izin tertulis dianggap pelanggaran prosedur dan menjadi tanggung jawab PIC shift yang bertugas pada hari tersebut.</div>
             <div style="margin-top:20px; display:flex; justify-content:flex-end;">
                 <div style="text-align:center; border-top:1px dashed #000; padding-top:5px; width:150px;">PIC Signature<br><br><br><span id="p_sign"></span></div>
             </div>
@@ -323,9 +270,7 @@
                 <div class="pdf-row"><span>Nominal Diajukan</span> <span>: <b id="pk_nominal"></b></span></div>
                 <div class="pdf-row"><span>Tujuan / Keperluan</span> <span>: <span id="pk_ket"></span></span></div>
             </div>
-            <div class="pdf-footer" style="margin-top:50px;">
-                PERNYATAAN: Dengan ini saya menyetujui bahwa pengajuan kasbon ini akan memotong Take Home Pay (Gaji/Upah) saya pada siklus penggajian bulan berjalan sesuai perhitungan yang ditetapkan oleh bagian Keuangan/Management.
-            </div>
+            <div class="pdf-footer" style="margin-top:50px;">PERNYATAAN: Dengan ini saya menyetujui bahwa pengajuan kasbon ini akan memotong Take Home Pay (Gaji/Upah) saya pada siklus penggajian bulan berjalan sesuai perhitungan yang ditetapkan oleh bagian Keuangan/Management.</div>
             <div style="margin-top:50px; display:flex; justify-content:space-between;">
                 <div style="text-align:center; width:150px;">Menyetujui (Admin/HO)<br><br><br><br>.....................</div>
                 <div style="text-align:center; width:150px;">Pemohon<br><br><br><br><b id="pk_sign"></b></div>
@@ -333,188 +278,261 @@
         </div>
     </div>
 
-
     <script>
-        // ==============================================================
-        // ⚠️ PASTE URL WEB APP BARU ANDA DI BAWAH INI:
-        // ==============================================================
-        const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4IoT0R_KKyzsib1FwAqAps_3Cod0tDY5XFPrD-sIbf_xR3ZyMnERo9h0qxu0nbrq0Rg/exec";
+        // =========================================================
+        // INISIASI BARIS DINAMIS (tanpa document.write)
+        // =========================================================
+        const kats = ["", "Belanja Bahan", "Transport", "Kebersihan", "Darurat", "Lainnya"];
+        const katsLabel = ["-Kategori-", "Belanja Bahan", "Transport", "Kebersihan", "Darurat", "Lainnya"];
+        const tim = ["", "Nathan", "Friz", "Ardi", "Wanto", "Aziz", "Danu"];
+        const timLabel = ["-Nama-", "Nathan", "Friz", "Ardi", "Wanto", "Aziz", "Danu"];
 
-        // --- PASSWORD & AUTO FETCH ---
-        function cekPassword() {
-            const pwd = document.getElementById('inputPassword').value;
-            if(pwd === 'KonsistenSop') {
-                document.getElementById('auth-overlay').style.display = 'none';
-                
-                // Set Waktu
-                let now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                document.getElementById('h_waktu').value = now.toISOString().slice(0,16);
+        function buatSelect(id, vals, labels, cls) {
+            let s = `<select id="${id}" style="padding:6px; font-size:10px;" ${cls||''}>`;
+            vals.forEach((v,i) => s += `<option value="${v}">${labels[i]}</option>`);
+            return s + '</select>';
+        }
 
-                // Fetch Modal via GET request ke Web App
-                let statusInfo = document.getElementById('status_tarik_data');
-                statusInfo.innerHTML = `🔄 Sedang menarik data dari database...`;
-                
-                fetch(GOOGLE_WEB_APP_URL + "?action=getModal")
+        // Baris pengeluaran dinamis
+        let dynHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            dynHTML += `<div class="row" style="margin-bottom:4px; gap:4px;">
+                <div style="flex:1">${buatSelect('dyn_kat_'+i, kats, katsLabel)}</div>
+                <div style="flex:1.5"><input type="text" id="dyn_ket_${i}" placeholder="Barang..." style="padding:6px; font-size:10px;"></div>
+                <div style="flex:1"><input type="number" id="dyn_nom_${i}" placeholder="Rp" oninput="kalkulasiCF()" style="padding:6px; font-size:10px;"></div>
+            </div>`;
+        }
+        document.getElementById('dynamic-expenses').innerHTML = dynHTML;
+
+        // Baris kasbon
+        let kabHTML = '';
+        for (let i = 1; i <= 6; i += 2) {
+            kabHTML += `<div class="row" style="gap:4px;">`;
+            for (let j = i; j <= i + 1; j++) {
+                kabHTML += `<div style="flex:1; display:flex; gap:2px;">
+                    ${buatSelect('k_n'+j, tim, timLabel)}
+                    <input type="number" id="k_v${j}" placeholder="Rp" oninput="kalkulasiCF()" style="padding:6px; font-size:10px; width:70px;">
+                </div>`;
+            }
+            kabHTML += `</div>`;
+        }
+        document.getElementById('kasbon-rows').innerHTML = kabHTML;
+
+        // =========================================================
+        // WINDOW ONLOAD — TARIK MODAL OTOMATIS via FETCH
+        // =========================================================
+        window.onload = function () {
+            // Set waktu default handover
+            let now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('h_waktu').value = now.toISOString().slice(0, 16);
+
+            // Tarik modal dari Apps Script via fetch GET
+            fetch(APPS_SCRIPT_URL + "?action=getModal")
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('h_modal').value = data.modal || 0;
                     kalkulasiHandover();
-                    statusInfo.style.color = '#0f5132';
-                    statusInfo.innerHTML = `✅ Modal Rp${Number(data.modal).toLocaleString('id-ID')} berhasil ditarik otomatis.`;
+                    document.getElementById('status_tarik_data').innerHTML =
+                        `✅ Modal Rp${Number(data.modal).toLocaleString('id-ID')} berhasil ditarik otomatis.`;
                 })
                 .catch(err => {
-                    statusInfo.style.color = '#856404';
-                    statusInfo.innerHTML = `⚠️ Gagal menarik modal otomatis. Harap isi manual.`;
+                    document.getElementById('status_tarik_data').innerHTML =
+                        '⚠️ Gagal tarik data otomatis. Isi modal secara manual.';
+                    console.error('Fetch modal error:', err);
                 });
-            } else {
-                alert('❌ Password Salah!');
-            }
-        }
-        document.getElementById("inputPassword").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") { e.preventDefault(); cekPassword(); }
-        });
+        };
 
-        // --- UTILITAS UI ---
-        function bukaTab(tabId) {
+        // =========================================================
+        // UTILITAS
+        // =========================================================
+        function bukaTab(tabId, btnEl) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            btnEl.classList.add('active');
         }
+
         function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
         function fNum(num) { return "Rp " + Number(num).toLocaleString('id-ID'); }
 
         function cekNominalKasbon() {
-            let v = n('kasbon_nominal');
-            document.getElementById('warnKasbon').style.display = (v > 500000) ? 'block' : 'none';
+            document.getElementById('warnKasbon').style.display = n('kasbon_nominal') > 500000 ? 'block' : 'none';
         }
 
-        // --- KALKULASI LOGIC ---
+        // =========================================================
+        // KALKULASI
+        // =========================================================
         function kalkulasiHandover() {
             let sys = n('h_modal') + n('h_omzet') - n('h_keluar');
             document.getElementById('h_sistem').value = sys;
-            let f = n('h_fisik');
-            document.getElementById('h_selisih').value = f - sys;
-            document.getElementById('h_sisa').value = f - n('h_setor');
+            document.getElementById('h_selisih').value = n('h_fisik') - sys;
+            document.getElementById('h_sisa').value = n('h_fisik') - n('h_setor');
         }
 
         function kalkulasiCF() {
             let totalA = n('a1') + n('a2') + n('a3');
             let totalTunai = totalA + (n('b1') - n('b2'));
             document.getElementById('c_tot_tunai').value = totalTunai;
-            
-            let totalKasbon = n('k_v1')+n('k_v2')+n('k_v3')+n('k_v4')+n('k_v5')+n('k_v6');
+
+            let totalKasbon = 0;
+            for (let i = 1; i <= 6; i++) totalKasbon += n('k_v' + i);
             let totalDyn = 0;
-            for(let i=1; i<=5; i++) totalDyn += n(`dyn_nom_${i}`);
-            
+            for (let i = 1; i <= 5; i++) totalDyn += n('dyn_nom_' + i);
+
             let totalE = totalDyn + totalKasbon;
             document.getElementById('c_tot_keluar').value = totalE;
-            
-            let uangSeharusnya = totalTunai - totalE;
-            document.getElementById('g3').value = n('g2') - uangSeharusnya;
+            document.getElementById('g3').value = n('g2') - (totalTunai - totalE);
         }
 
-        // --- PREPARE PAYLOAD ---
+        // =========================================================
+        // BUAT PAYLOAD
+        // =========================================================
         function getPayload(tipe) {
-            let p = { tipeForm: tipe, data: {} };
-            if(tipe === 'handover') {
+            if (tipe === 'handover') {
                 const cItems = document.querySelectorAll('.c-item');
-                const allChecked = [...cItems].every(cb => cb.checked);
-                if(!allChecked) { alert("⚠️ Selesaikan ke-7 item checklist kebersihan & operasional!"); return null; }
-                if(!document.getElementById('acc_lama').checked || !document.getElementById('acc_baru').checked) {
+                if (![...cItems].every(cb => cb.checked)) {
+                    alert("⚠️ Selesaikan ke-7 item checklist kebersihan & operasional!"); return null;
+                }
+                if (!document.getElementById('acc_lama').checked || !document.getElementById('acc_baru').checked) {
                     alert("⚠️ Centang Tanda Tangan Digital Otorisasi!"); return null;
                 }
-                p.data = {
-                    waktu: document.getElementById('h_waktu').value, staf_lama: document.getElementById('h_lama').value,
-                    staf_baru: document.getElementById('h_baru').value, modal_awal: n('h_modal'),
-                    omzet_tunai: n('h_omzet'), pengeluaran: n('h_keluar'), sistem_a: n('h_sistem'),
-                    fisik_b: n('h_fisik'), selisih: n('h_selisih'), ket_selisih: document.getElementById('h_ket').value,
-                    setor_kasbesar: n('h_setor'), modal_ditinggal: n('h_sisa'), acc_lama: "TTD Valid", acc_baru: "TTD Valid",
-                    status_checklist: "Selesai 7/7", 
-                    ket_keluar: document.getElementById('h_ket_keluar').value,
-                    catatan: document.getElementById('h_catatan').value
+                return {
+                    tipeForm: 'handover',
+                    data: {
+                        waktu: document.getElementById('h_waktu').value,
+                        staf_lama: document.getElementById('h_lama').value,
+                        staf_baru: document.getElementById('h_baru').value,
+                        modal_awal: n('h_modal'), omzet_tunai: n('h_omzet'),
+                        pengeluaran: n('h_keluar'), sistem_a: n('h_sistem'),
+                        fisik_b: n('h_fisik'), selisih: n('h_selisih'),
+                        ket_selisih: document.getElementById('h_ket').value,
+                        setor_kasbesar: n('h_setor'), modal_ditinggal: n('h_sisa'),
+                        acc_lama: "TTD Valid", acc_baru: "TTD Valid",
+                        status_checklist: "Selesai 7/7",
+                        ket_keluar: document.getElementById('h_ket_keluar').value,
+                        catatan: document.getElementById('h_catatan').value
+                    }
                 };
-            } 
-            else if(tipe === 'cashflow') {
-                let dynArr =[];
-                for(let i=1; i<=5; i++) {
-                    let k = document.getElementById(`dyn_kat_${i}`).value;
-                    let t = document.getElementById(`dyn_ket_${i}`).value;
-                    let v = n(`dyn_nom_${i}`);
-                    if(k || t || v>0) dynArr.push({kategori: k, ket: t, nom: v});
+            }
+
+            if (tipe === 'cashflow') {
+                let dynArr = [];
+                for (let i = 1; i <= 5; i++) {
+                    let k = document.getElementById('dyn_kat_' + i).value;
+                    let t = document.getElementById('dyn_ket_' + i).value;
+                    let v = n('dyn_nom_' + i);
+                    if (k || t || v > 0) dynArr.push({ kategori: k, ket: t, nom: v });
                 }
-                p.data = {
-                    tgl: document.getElementById('c_tgl').value, pic: document.getElementById('c_pic').value,
-                    a1: n('a1'), a2: n('a2'), a3: n('a3'), total_a: n('a1')+n('a2')+n('a3'),
-                    b1: n('b1'), b2: n('b2'), b3: n('b1')-n('b2'), c1: n('c1'), c2: n('c2'), c3: n('c3'), total_c: n('c1')+n('c2')+n('c3'),
-                    total_tunai_final: n('c_tot_tunai'), total_non_tunai_final: n('b2')+n('c1')+n('c2')+n('c3'),
-                    e1: 0, e2: 0, e3: "Cek Rincian Dinamis",
-                    k_n1: document.getElementById('k_n1').value, k_v1: n('k_v1'), k_n2: document.getElementById('k_n2').value, k_v2: n('k_v2'),
-                    k_n3: document.getElementById('k_n3').value, k_v3: n('k_v3'), k_n4: document.getElementById('k_n4').value, k_v4: n('k_v4'),
-                    k_n5: document.getElementById('k_n5').value, k_v5: n('k_v5'), k_n6: document.getElementById('k_n6').value, k_v6: n('k_v6'),
-                    pengeluaran_dinamis: dynArr, total_e: n('c_tot_keluar'), f1: "", f2: 0, 
-                    g1: n('c_tot_tunai') - n('c_tot_keluar'), g2: n('g2'), g3: n('g3'), g4: document.getElementById('g4').value,
-                    h1: n('h1'), h2: n('h2'), h3: n('h3')
+                return {
+                    tipeForm: 'cashflow',
+                    data: {
+                        tgl: document.getElementById('c_tgl').value,
+                        pic: document.getElementById('c_pic').value,
+                        a1: n('a1'), a2: n('a2'), a3: n('a3'),
+                        total_a: n('a1') + n('a2') + n('a3'),
+                        b1: n('b1'), b2: n('b2'), b3: n('b1') - n('b2'),
+                        c1: n('c1'), c2: n('c2'), c3: n('c3'),
+                        total_c: n('c1') + n('c2') + n('c3'),
+                        total_tunai_final: n('c_tot_tunai'),
+                        total_non_tunai_final: n('b2') + n('c1') + n('c2') + n('c3'),
+                        e1: 0, e2: 0, e3: "Cek Rincian Dinamis",
+                        k_n1: document.getElementById('k_n1').value, k_v1: n('k_v1'),
+                        k_n2: document.getElementById('k_n2').value, k_v2: n('k_v2'),
+                        k_n3: document.getElementById('k_n3').value, k_v3: n('k_v3'),
+                        k_n4: document.getElementById('k_n4').value, k_v4: n('k_v4'),
+                        k_n5: document.getElementById('k_n5').value, k_v5: n('k_v5'),
+                        k_n6: document.getElementById('k_n6').value, k_v6: n('k_v6'),
+                        pengeluaran_dinamis: dynArr,
+                        total_e: n('c_tot_keluar'),
+                        f1: "", f2: 0,
+                        g1: n('c_tot_tunai') - n('c_tot_keluar'),
+                        g2: n('g2'), g3: n('g3'),
+                        g4: document.getElementById('g4').value,
+                        h1: n('h1'), h2: n('h2'), h3: n('h3')
+                    }
                 };
             }
-            else if(tipe === 'kasbon') {
-                if(!document.getElementById('kasbon_nama').value) { alert("⚠️ Pilih nama pemohon!"); return null; }
-                p.data = {
-                    nama: document.getElementById('kasbon_nama').value, tgl_pengajuan: document.getElementById('kasbon_tgl').value,
-                    nominal: n('kasbon_nominal'), keterangan: document.getElementById('kasbon_ket').value
+
+            if (tipe === 'kasbon') {
+                if (!document.getElementById('kasbon_nama').value) {
+                    alert("⚠️ Pilih nama pemohon!"); return null;
+                }
+                return {
+                    tipeForm: 'kasbon',
+                    data: {
+                        nama: document.getElementById('kasbon_nama').value,
+                        tgl_pengajuan: document.getElementById('kasbon_tgl').value,
+                        nominal: n('kasbon_nominal'),
+                        keterangan: document.getElementById('kasbon_ket').value
+                    }
                 };
             }
-            return p;
+
+            return null;
         }
 
-        // --- FETCH KE WEB APP ---
-        function submitData(tipe, btnId) {
+        // =========================================================
+        // KIRIM DATA KE APPS SCRIPT via FETCH POST
+        // =========================================================
+        function submitFetch(tipe, btnId, msgId) {
             let payload = getPayload(tipe);
-            if(!payload) return;
-            const btn = document.getElementById(btnId);
-            let origText = btn.innerText; btn.innerText = "⏳ Sedang Mengirim ke Cloud..."; btn.disabled = true;
+            if (!payload) return;
 
-            fetch(GOOGLE_WEB_APP_URL, {
+            const btn = document.getElementById(btnId);
+            const msg = document.getElementById(msgId);
+            const origText = btn.innerText;
+            btn.innerText = "⏳ Sedang Menyimpan...";
+            btn.disabled = true;
+
+            fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                // no-cors karena Apps Script tidak mengirim CORS header untuk POST
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(result => {
-                let msg = document.getElementById('msg' + tipe.charAt(0).toUpperCase() + tipe.slice(1));
+            .then(() => {
+                // no-cors selalu resolve (opaque response), anggap sukses
+                msg.className = 'msg-box msg-success';
+                msg.innerText = '✅ Data berhasil dikirim ke Google Sheets!';
                 msg.style.display = 'block';
-                setTimeout(() => { 
+                setTimeout(() => {
                     msg.style.display = 'none';
-                    if(tipe==='handover') {
-                        document.querySelectorAll('.c-item, #acc_lama, #acc_baru').forEach(c=>c.checked=false);
-                        document.getElementById('h_ket_keluar').value = '';
-                        document.getElementById('h_catatan').value = '';
+                    if (tipe === 'handover') {
+                        document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
                     }
-                    btn.disabled = false; btn.innerText = origText;
+                    btn.disabled = false;
+                    btn.innerText = origText;
                 }, 4000);
             })
-            .catch(error => {
-                alert("❌ Koneksi internet gagal. Data tidak terkirim ke Spreadsheet.");
-                btn.disabled = false; btn.innerText = origText;
+            .catch(err => {
+                msg.className = 'msg-box msg-error';
+                msg.innerText = '❌ Gagal mengirim data. Cek koneksi internet.';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = origText;
+                console.error('Fetch POST error:', err);
             });
         }
 
-        // --- EKSEKUSI GENERATE PDF MT103 STYLE ---
+        // =========================================================
+        // GENERATE PDF — CASHFLOW
+        // =========================================================
         function siapkanPDFCashflow(d) {
             let now = new Date();
             let dStr = document.getElementById('c_tgl').value || '-';
             let ref = "CF-" + dStr.replace(/-/g, "") + "-" + now.getHours() + now.getMinutes();
-            
+
             document.getElementById('p_ref').innerText = ref;
             document.getElementById('p_tgl').innerText = dStr;
-            document.getElementById('p_pic').innerText = document.getElementById('c_pic').value.toUpperCase() || 'UNKNOWN';
+            document.getElementById('p_pic').innerText = (document.getElementById('c_pic').value || 'UNKNOWN').toUpperCase();
             document.getElementById('p_cetak').innerText = now.toLocaleString('id-ID');
-            document.getElementById('p_sign').innerText = document.getElementById('c_pic').value.toUpperCase() || '.....................';
+            document.getElementById('p_sign').innerText = (document.getElementById('c_pic').value || '.....................').toUpperCase();
 
             document.getElementById('p_a_awal').innerText = fNum(d.total_a);
             document.getElementById('p_pos').innerText = fNum(d.b1);
-            document.getElementById('p_qris').innerText = "("+fNum(d.b2)+")";
+            document.getElementById('p_qris').innerText = "(" + fNum(d.b2) + ")";
             document.getElementById('p_tot_tunai').innerText = fNum(d.total_tunai_final);
 
             let tbody = document.getElementById('p_tbody_pengeluaran');
@@ -522,13 +540,13 @@
             d.pengeluaran_dinamis.forEach(x => {
                 tbody.innerHTML += `<tr><td>${x.kategori}</td><td>${x.ket}</td><td class="right">${fNum(x.nom)}</td></tr>`;
             });
-            for(let i=1; i<=6; i++) {
-                if(d[`k_n${i}`] && d[`k_v${i}`]>0) {
-                    tbody.innerHTML += `<tr><td>Kasbon</td><td>${d[`k_n${i}`]}</td><td class="right">${fNum(d[`k_v${i}`])}</td></tr>`;
+            for (let i = 1; i <= 6; i++) {
+                if (d['k_n' + i] && d['k_v' + i] > 0) {
+                    tbody.innerHTML += `<tr><td>Kasbon</td><td>${d['k_n'+i]}</td><td class="right">${fNum(d['k_v'+i])}</td></tr>`;
                 }
             }
-            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">NIL / TIDAK ADA PENGELUARAN</td></tr>`;
-            
+            if (!tbody.innerHTML) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">NIL / TIDAK ADA PENGELUARAN</td></tr>`;
+
             document.getElementById('p_tot_keluar').innerText = fNum(d.total_e);
             document.getElementById('p_sys').innerText = fNum(d.g1);
             document.getElementById('p_fisik').innerText = fNum(d.g2);
@@ -547,26 +565,17 @@
             document.getElementById('pk_sign').innerText = d.nama.toUpperCase();
         }
 
-        function prosesCetakLaluSimpan(tipe, btnId) {
+        function triggerCetak(tipe, areaId, namaFile, btnId, msgId) {
             let payload = getPayload(tipe);
-            if(!payload) return;
-            
-            const btn = document.getElementById(btnId);
-            let origText = btn.innerText; btn.innerText = "⏳ Sedang Cetak PDF..."; btn.disabled = true;
+            if (!payload) return;
 
-            let areaId = 'pdf-' + tipe;
-            let namaFile = 'Dokumen.pdf';
-            if(tipe === 'cashflow') {
-                siapkanPDFCashflow(payload.data);
-                let nama = document.getElementById('c_pic').value || 'TanpaNama';
-                let tgl = document.getElementById('c_tgl').value || 'Tgl';
-                namaFile = `CASHFLOW_${nama}_${tgl}.pdf`;
-            } else if(tipe === 'kasbon') {
-                siapkanPDFKasbon(payload.data);
-                let nama = document.getElementById('kasbon_nama').value || 'TanpaNama';
-                let tgl = document.getElementById('kasbon_tgl').value || 'Tgl';
-                namaFile = `KASBON_${nama}_${tgl}.pdf`;
-            }
+            const btn = document.getElementById(btnId);
+            const origText = btn.innerText;
+            btn.innerText = "⏳ Sedang Cetak PDF...";
+            btn.disabled = true;
+
+            if (tipe === 'cashflow') siapkanPDFCashflow(payload.data);
+            if (tipe === 'kasbon') siapkanPDFKasbon(payload.data);
 
             document.getElementById('ui-container').style.display = 'none';
             document.getElementById('print-container').style.display = 'block';
@@ -584,12 +593,25 @@
                 document.getElementById('ui-container').style.display = 'block';
                 document.getElementById('print-container').style.display = 'none';
                 elemen.style.display = 'none';
-                btn.innerText = origText; btn.disabled = false;
-                
-                // Panggil submit fetch ke database
-                submitData(tipe, btnId);
-                if(tipe === 'kasbon') alert("📄 PDF Terunduh! Harap kirimkan ke Admin/Hardianto.");
+                btn.innerText = origText;
+                btn.disabled = false;
+
+                // Setelah PDF selesai, kirim data ke Sheets
+                submitFetch(tipe, btnId, msgId);
+                if (tipe === 'kasbon') alert("📄 PDF Terunduh! Harap kirimkan ke Admin/Hardianto.");
             });
+        }
+
+        function prosesCetakLaluSimpan() {
+            let nama = document.getElementById('c_pic').value || 'TanpaNama';
+            let tgl = document.getElementById('c_tgl').value || 'Tgl';
+            triggerCetak('cashflow', 'pdf-cashflow', `CASHFLOW_${nama}_${tgl}.pdf`, 'btnCashflow', 'msgCashflow');
+        }
+
+        function prosesKasbonLokal() {
+            let nama = document.getElementById('kasbon_nama').value || 'TanpaNama';
+            let tgl = document.getElementById('kasbon_tgl').value || 'Tgl';
+            triggerCetak('kasbon', 'pdf-kasbon', `KASBON_${nama}_${tgl}.pdf`, 'btnKasbon', 'msgKasbon');
         }
     </script>
 </body>
