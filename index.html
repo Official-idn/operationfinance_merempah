@@ -106,14 +106,20 @@
         .check-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #333; }
         .check-item input { width: auto; transform: scale(1.2); margin: 0; cursor: pointer; }
 
-        /* ===== HIDDEN PDF CONTAINER ===== */
-        #print-container { display: none; }
+        /* ===== HIDDEN PDF CONTAINER (FIX IOS RENDER) ===== */
+        /* Kita ubah display:none menjadi off-screen rendering agar WebKit tidak menghasilkan PDF blank */
+        #print-container { 
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: -1000;
+            visibility: visible;
+        }
 
         /* ===== PDF STYLES — SWIFT BANKING FORMAT ===== */
         .pdf-page {
             width: 210mm;
-            min-height: 270mm;
-            max-height: 297mm;
+            min-height: 297mm; /* Dipatenkan agar form tetap proporsional dan tidak terpotong */
             padding: 12mm 14mm 10mm 14mm;
             box-sizing: border-box;
             font-family: 'Courier New', Courier, monospace;
@@ -122,6 +128,7 @@
             font-size: 9pt;
             line-height: 1.35;
             overflow: hidden;
+            position: relative; /* Memastikan konten render mulai dari titik awal teratas */
         }
 
         /* HEADER SWIFT */
@@ -140,7 +147,6 @@
 
         /* META ROW */
         .pdf-meta { display: flex; justify-content: space-between; font-size: 7.5pt; margin-bottom: 6px; }
-        .pdf-meta span { }
 
         .pdf-divider { border: none; border-top: 1px solid #000; margin: 5px 0; }
         .pdf-divider-dash { border: none; border-top: 1px dashed #000; margin: 4px 0; }
@@ -185,8 +191,7 @@
     </style>
 </head>
 <body>
-
-    <!-- ============================================================ -->
+<!-- ============================================================ -->
     <!-- PASSWORD GATE                                                 -->
     <!-- ============================================================ -->
     <div id="password-gate">
@@ -363,7 +368,7 @@
                 </div>
             </div>
 
-            <button id="btnCashflow" class="action-btn gold" onclick="prosesCetakLaluSimpan()">📥 CETAK PDF MT103 &amp; SIMPAN</button>
+            <button id="btnCashflow" class="action-btn gold" onclick="prosesCetakLaluSimpan()">📥 CETAK PDF &amp; SIMPAN</button>
             <div id="msgCashflow" class="msg-box msg-success">✅ Tersimpan &amp; Terunduh!</div>
         </div>
 
@@ -389,7 +394,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- HIDDEN: TEMPLATE PDF                                          -->
+    <!-- HIDDEN: TEMPLATE PDF (OFF-SCREEN RENDERING CONTAINER)         -->
     <!-- ============================================================ -->
     <div id="print-container">
 
@@ -573,8 +578,7 @@
         </div>
 
     </div><!-- end print-container -->
-
-    <!-- ============================================================ -->
+	<!-- ============================================================ -->
     <!-- JAVASCRIPT                                                    -->
     <!-- ============================================================ -->
     <script>
@@ -712,7 +716,6 @@
             document.getElementById('warnKasbon').style.display = n('kasbon_nominal') > 500000 ? 'block' : 'none';
         }
 
-        // Format tanggal DDMMYY
         function formatDDMMYY(dateStr) {
             if (!dateStr) {
                 let d = new Date();
@@ -723,13 +726,11 @@
             return dateStr.replace(/-/g,'');
         }
 
-        // Format jam HHMM
         function formatJam() {
             let d = new Date();
             return String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0');
         }
 
-        // Format datetime-local ke DDMMYY
         function formatDTLocalDDMMYY(dtStr) {
             if (!dtStr) return formatDDMMYY('');
             let parts = dtStr.split('T')[0].split('-');
@@ -737,7 +738,6 @@
             return formatDDMMYY('');
         }
 
-        // Clean nama untuk filename
         function cleanName(s) {
             return (s || 'UNKNOWN').toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9]/g,'');
         }
@@ -854,37 +854,34 @@
         }
 
         // =========================================================
-        // KIRIM DATA KE APPS SCRIPT
+        // KIRIM DATA KE APPS SCRIPT (CORS BYPASS IOS)
         // =========================================================
-        function submitFetch(tipe, btnId, msgId, onDone) {
+        async function submitFetch(tipe, msgId) {
             let payload = getPayload(tipe);
-            if (!payload) return;
+            if (!payload) return false;
 
-            const btn = document.getElementById(btnId);
             const msg = document.getElementById(msgId);
 
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
+            try {
+                // Trik: Menggunakan text/plain mencegah request OPTIONS Preflight yang sering diblokir iOS
+                let response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
                 msg.className = 'msg-box msg-success';
                 msg.innerText = '✅ Data berhasil dikirim ke Google Sheets!';
                 msg.style.display = 'block';
                 setTimeout(() => { msg.style.display = 'none'; }, 4000);
-                if (typeof onDone === 'function') onDone();
-            })
-            .catch(err => {
+                return true;
+            } catch (err) {
                 msg.className = 'msg-box msg-error';
                 msg.innerText = '❌ Gagal mengirim data. Cek koneksi internet.';
                 msg.style.display = 'block';
                 console.error('Fetch POST error:', err);
-            })
-            .finally(() => {
-                btn.disabled = false;
-            });
+                return false;
+            }
         }
 
         // =========================================================
@@ -915,7 +912,7 @@
             document.getElementById('ph_sign_baru').innerText = (d.staf_baru || '...........').toUpperCase();
         }
 
-        function prosesHandover() {
+        async function prosesHandover() {
             let payload = getPayload('handover');
             if (!payload) return;
 
@@ -926,35 +923,34 @@
 
             siapkanPDFHandover(payload.data);
 
-            // Nama file: NAMASHIFTKLUAR_NAMASHIFTMASUK_HANDOVER_DDMMYY_JAM
             let namaLama = cleanName(payload.data.staf_lama);
             let namaBaru = cleanName(payload.data.staf_baru);
             let tglStr   = formatDTLocalDDMMYY(payload.data.waktu);
             let jamStr   = formatJam();
             let namaFile = `${namaLama}_${namaBaru}_HANDOVER_${tglStr}_${jamStr}.pdf`;
 
-            document.getElementById('ui-container').style.display = 'none';
-            document.getElementById('print-container').style.display = 'block';
-            let elemen = document.getElementById('pdf-handover');
-            elemen.style.display = 'block';
+            // Fix iOS Render: Wajib Scroll Top
+            window.scrollTo(0, 0);
 
+            let elemen = document.getElementById('pdf-handover');
+
+            // Set konfigurasi html2canvas ramah WebKit
             const opt = {
                 margin: [0, 0, 0, 0],
                 filename: namaFile,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
+                html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollY: 0, windowWidth: 794 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(elemen).save().then(() => {
-                document.getElementById('ui-container').style.display = 'block';
-                document.getElementById('print-container').style.display = 'none';
-                elemen.style.display = 'none';
-                btn.innerText = origText;
-                btn.disabled = false;
+            try {
+                // 1. Eksekusi Print PDF Terlebih Dahulu
+                await html2pdf().set(opt).from(elemen).save();
+                
+                // 2. Setelah PDF Sukses, Kirim ke Google Sheets
+                let suksesKirim = await submitFetch('handover', 'msgHandover');
 
-                // Kirim ke sheets
-                submitFetch('handover', 'btnHandover', 'msgHandover', function() {
+                if (suksesKirim) {
                     document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
                     tampilkanPopup(
                         `<b>Handover berhasil direkam!</b><br><br>` +
@@ -962,8 +958,14 @@
                         `PDF <b>${namaFile}</b> telah diunduh.<br><br>` +
                         `Terima kasih telah menyelesaikan prosedur handover dengan benar. 🙏`
                     );
-                });
-            });
+                }
+            } catch (err) {
+                console.error("Proses gagal:", err);
+                alert("Terjadi kesalahan saat membuat dokumen.");
+            } finally {
+                btn.innerText = origText;
+                btn.disabled = false;
+            }
         }
 
         // =========================================================
@@ -1017,7 +1019,7 @@
             document.getElementById('p_setor_ho').innerText = fNum(d.h3);
         }
 
-        function prosesCetakLaluSimpan() {
+        async function prosesCetakLaluSimpan() {
             let payload = getPayload('cashflow');
             if (!payload) return;
 
@@ -1028,41 +1030,46 @@
 
             siapkanPDFCashflow(payload.data);
 
-            // Nama file: NAMAPENGINPUT_CASHFLOW_DDMMYY_JAM
             let namaPIC = cleanName(payload.data.pic);
             let tglStr  = formatDDMMYY(payload.data.tgl);
             let jamStr  = formatJam();
             let namaFile = `${namaPIC}_CASHFLOW_${tglStr}_${jamStr}.pdf`;
 
-            document.getElementById('ui-container').style.display = 'none';
-            document.getElementById('print-container').style.display = 'block';
+            // Fix iOS Render: Wajib Scroll Top
+            window.scrollTo(0, 0);
+
             let elemen = document.getElementById('pdf-cashflow');
-            elemen.style.display = 'block';
 
             const opt = {
                 margin: [0, 0, 0, 0],
                 filename: namaFile,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
+                html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollY: 0, windowWidth: 794 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(elemen).save().then(() => {
-                document.getElementById('ui-container').style.display = 'block';
-                document.getElementById('print-container').style.display = 'none';
-                elemen.style.display = 'none';
-                btn.innerText = origText;
-                btn.disabled = false;
+            try {
+                // 1. Eksekusi Print PDF
+                await html2pdf().set(opt).from(elemen).save();
 
-                submitFetch('cashflow', 'btnCashflow', 'msgCashflow', function() {
+                // 2. Kirim Data Setelah Unduh Berhasil
+                let suksesKirim = await submitFetch('cashflow', 'msgCashflow');
+
+                if (suksesKirim) {
                     tampilkanPopup(
                         `<b>Cashflow berhasil direkam!</b><br><br>` +
                         `Data telah tersimpan ke Google Sheets.<br>` +
                         `PDF <b>${namaFile}</b> telah diunduh ke perangkat Anda.<br><br>` +
                         `Terima kasih, ${payload.data.pic || 'PIC'} atas laporan yang akurat. 🙏`
                     );
-                });
-            });
+                }
+            } catch (err) {
+                console.error("Proses gagal:", err);
+                alert("Terjadi kesalahan saat memproses laporan.");
+            } finally {
+                btn.innerText = origText;
+                btn.disabled = false;
+            }
         }
 
         // =========================================================
@@ -1080,7 +1087,7 @@
             document.getElementById('pk_sign').innerText = (d.nama || '...........').toUpperCase();
         }
 
-        function prosesKasbonLokal() {
+        async function prosesKasbonLokal() {
             let payload = getPayload('kasbon');
             if (!payload) return;
 
@@ -1091,40 +1098,45 @@
 
             siapkanPDFKasbon(payload.data);
 
-            // Nama file: NAMAPEGAWAIKASBON_DDMMYY
             let namaPegawai = cleanName(payload.data.nama);
             let tglStr = formatDDMMYY(payload.data.tgl_pengajuan);
             let namaFile = `${namaPegawai}_${tglStr}.pdf`;
 
-            document.getElementById('ui-container').style.display = 'none';
-            document.getElementById('print-container').style.display = 'block';
+            // Fix iOS Render: Wajib Scroll Top
+            window.scrollTo(0, 0);
+
             let elemen = document.getElementById('pdf-kasbon');
-            elemen.style.display = 'block';
 
             const opt = {
                 margin: [0, 0, 0, 0],
                 filename: namaFile,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
+                html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollY: 0, windowWidth: 794 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(elemen).save().then(() => {
-                document.getElementById('ui-container').style.display = 'block';
-                document.getElementById('print-container').style.display = 'none';
-                elemen.style.display = 'none';
-                btn.innerText = origText;
-                btn.disabled = false;
+            try {
+                // 1. Eksekusi Print PDF
+                await html2pdf().set(opt).from(elemen).save();
 
-                submitFetch('kasbon', 'btnKasbon', 'msgKasbon', function() {
+                // 2. Kirim Data Setelah Unduh
+                let suksesKirim = await submitFetch('kasbon', 'msgKasbon');
+
+                if (suksesKirim) {
                     tampilkanPopup(
                         `<b>Kasbon berhasil diajukan!</b><br><br>` +
                         `Pengajuan <b>${payload.data.nama}</b> telah tersimpan ke database.<br>` +
                         `PDF <b>${namaFile}</b> telah diunduh.<br><br>` +
                         `📲 Harap kirimkan PDF ke Admin/Hardianto via WhatsApp untuk konfirmasi persetujuan. 🙏`
                     );
-                });
-            });
+                }
+            } catch (err) {
+                console.error("Proses gagal:", err);
+                alert("Terjadi kesalahan saat memproses kasbon.");
+            } finally {
+                btn.innerText = origText;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
