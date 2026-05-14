@@ -56,7 +56,7 @@
     <!-- GANTI URL INI DENGAN URL DEPLOYMENT APPS SCRIPT ANDA         -->
     <!-- ============================================================ -->
     <script>
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdKj0Xx5xFeIxORBv2pBo3DGiG5BmKqcxnypDKO9ett5hYIPNt-YaZEWMjeCpalL52_w/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzK3bc1kOrHKGsWUIBbZ96WKaUck3tRxpnfc28ljyA9O9i-piMJOwMP9eRfJUz_tcyNA/exec";
     </script>
 
     <div id="ui-container">
@@ -327,9 +327,32 @@
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('h_waktu').value = now.toISOString().slice(0, 16);
 
-            // Tarik modal dari Apps Script via fetch GET
-            fetch(APPS_SCRIPT_URL + "?action=getModal")
-                .then(res => res.json())
+            // Tarik modal dari Apps Script via JSONP (bypass CORS)
+            // JSONP tidak terkena CORS karena menggunakan tag <script>, bukan fetch
+            function tarikModalJSONP() {
+                return new Promise((resolve, reject) => {
+                    const cbName = 'cb_modal_' + Date.now();
+                    const script = document.createElement('script');
+                    const timeout = setTimeout(() => {
+                        delete window[cbName];
+                        script.remove();
+                        reject(new Error('Timeout'));
+                    }, 8000);
+
+                    window[cbName] = function(data) {
+                        clearTimeout(timeout);
+                        delete window[cbName];
+                        script.remove();
+                        resolve(data);
+                    };
+
+                    script.src = APPS_SCRIPT_URL + '?action=getModal&callback=' + cbName;
+                    script.onerror = () => { clearTimeout(timeout); reject(new Error('Script error')); };
+                    document.head.appendChild(script);
+                });
+            }
+
+            tarikModalJSONP()
                 .then(data => {
                     document.getElementById('h_modal').value = data.modal || 0;
                     kalkulasiHandover();
@@ -337,9 +360,9 @@
                         `✅ Modal Rp${Number(data.modal).toLocaleString('id-ID')} berhasil ditarik otomatis.`;
                 })
                 .catch(err => {
+                    console.error('JSONP error:', err);
                     document.getElementById('status_tarik_data').innerHTML =
                         '⚠️ Gagal tarik data otomatis. Isi modal secara manual.';
-                    console.error('Fetch modal error:', err);
                 });
         };
 
